@@ -1,0 +1,192 @@
+﻿@model Web.Models.Guest
+@{
+    ViewData["Title"] = "Détails de l'invité";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">👤 Détails de l'invité</h3>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-light btn-sm">
+                                ✏️ Modifier
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Informations principales -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2">Informations personnelles</h5>
+                            <dl class="row">
+                                <dt class="col-sm-5">Nom complet</dt>
+                                <dd class="col-sm-7"><strong>@Model.FullName</strong></dd>
+
+                                <dt class="col-sm-5">Email</dt>
+                                <dd class="col-sm-7">
+                                    <a href="mailto:@Model.Email">@Model.Email</a>
+                                </dd>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.GroupFamily))
+                                {
+                                    <dt class="col-sm-5">Groupe/Famille</dt>
+                                    <dd class="col-sm-7">
+                                        <span class="badge bg-info">@Model.GroupFamily</span>
+                                    </dd>
+                                }
+
+                                <dt class="col-sm-5">Nombre de personnes</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-secondary">@Model.NumberOfPeople personne(s)</span>
+                                </dd>
+                            </dl>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2">Statut et réponse</h5>
+                            <dl class="row">
+                                <dt class="col-sm-5">Statut RSVP</dt>
+                                <dd class="col-sm-7">
+                                    @if (Model.Status == Web.Models.RsvpStatus.Confirmed)
+                                    {
+                                        <span class="badge bg-success">✅ Confirmé</span>
+                                    }
+                                    else if (Model.Status == Web.Models.RsvpStatus.Declined)
+                                    {
+                                        <span class="badge bg-danger">❌ Refusé</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">⏳ En attente</span>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-5">Table assignée</dt>
+                                <dd class="col-sm-7">
+                                    @if (Model.Table != null)
+                                    {
+                                        <span class="badge bg-primary">@Model.Table.Name</span>
+                                        <br />
+                                        <small class="text-muted">
+                                            Occupation: @Model.Table.CurrentOccupancy/@Model.Table.Capacity
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Aucune table assignée</span>
+                                    }
+                                </dd>
+
+                                @if (Model.RespondedAt.HasValue)
+                                {
+                                    <dt class="col-sm-5">Date de réponse</dt>
+                                    <dd class="col-sm-7">
+                                        @Model.RespondedAt.Value.ToString("dd/MM/yyyy à HH:mm")
+                                    </dd>
+                                }
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Contraintes alimentaires -->
+                    @if (!string.IsNullOrWhiteSpace(Model.DietaryRestrictions))
+                    {
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading">🍽️ Contraintes alimentaires</h6>
+                            <p class="mb-0">@Model.DietaryRestrictions</p>
+                        </div>
+                    }
+
+                    <!-- Informations du token RSVP -->
+                    @if (Model.RsvpToken != null)
+                    {
+                        <div class="card bg-light mt-3">
+                            <div class="card-body">
+                                <h6 class="card-title">🔗 Informations du lien RSVP</h6>
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-3">Token</dt>
+                                    <dd class="col-sm-9">
+                                        <code>@Model.RsvpToken.Token</code>
+                                    </dd>
+
+                                    <dt class="col-sm-3">Statut</dt>
+                                    <dd class="col-sm-9">
+                                        @if (Model.RsvpToken.IsUsed)
+                                        {
+                                            <span class="badge bg-success">✅ Utilisé</span>
+                                            <small class="text-muted">
+                                                le @Model.RsvpToken.UsedAt?.ToString("dd/MM/yyyy à HH:mm")
+                                            </small>
+                                        }
+                                        else if (Model.RsvpToken.ExpiresAt < DateTime.UtcNow)
+                                        {
+                                            <span class="badge bg-danger">❌ Expiré</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">✅ Valide</span>
+                                            <small class="text-muted">
+                                                (expire le @Model.RsvpToken.ExpiresAt.ToString("dd/MM/yyyy"))
+                                            </small>
+                                        }
+                                    </dd>
+
+                                    <dt class="col-sm-3">Créé le</dt>
+                                    <dd class="col-sm-9">
+                                        @Model.RsvpToken.CreatedAt.ToString("dd/MM/yyyy à HH:mm")
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Métadonnées -->
+                    <div class="mt-4 pt-3 border-top">
+                        <h6 class="text-muted">Métadonnées</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <small class="text-muted">
+                                    Créé le: @Model.CreatedAt.ToString("dd/MM/yyyy à HH:mm")
+                                </small>
+                            </div>
+                            @if (Model.UpdatedAt.HasValue)
+                            {
+                                <div class="col-md-4">
+                                    <small class="text-muted">
+                                        Modifié le: @Model.UpdatedAt.Value.ToString("dd/MM/yyyy à HH:mm")
+                                    </small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <hr class="my-4" />
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            ← Retour à la liste
+                        </a>
+                        <div>
+                            <form asp-action="ResendInvitation" asp-route-id="@Model.Id"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-info">
+                                    📧 Renvoyer l'invitation
+                                </button>
+                            </form>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                ✏️ Modifier
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                                🗑️ Supprimer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

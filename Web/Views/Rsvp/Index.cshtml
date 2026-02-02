@@ -1,0 +1,116 @@
+﻿@model Web.Models.ViewModels.RsvpViewModel
+@{
+    ViewData["Title"] = "Confirmation de présence";
+    Layout = "_LayoutPublic"; // Layout sans authentification
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-gradient text-white text-center py-4"
+                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h2 class="mb-0">🎉 Vous êtes invité(e) !</h2>
+                </div>
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h4>Bonjour @Model.Guest.FullName,</h4>
+                        <p class="lead">Nous serions ravis de vous compter parmi nous pour célébrer notre mariage.</p>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <form asp-action="Submit" method="post">
+                        <input type="hidden" asp-for="Token" />
+
+                        <div class="mb-4">
+                            <label class="form-label h5">Serez-vous présent(e) ?</label>
+                            <div class="d-grid gap-3">
+                                <div class="form-check p-3 border rounded" style="cursor: pointer;">
+                                    <input class="form-check-input" type="radio" name="Status" value="1"
+                                           id="statusConfirmed" required style="transform: scale(1.5);" />
+                                    <label class="form-check-label ms-2" for="statusConfirmed" style="cursor: pointer;">
+                                        <strong>✅ Oui, je serai présent(e)</strong>
+                                    </label>
+                                </div>
+                                <div class="form-check p-3 border rounded" style="cursor: pointer;">
+                                    <input class="form-check-input" type="radio" name="Status" value="2"
+                                           id="statusDeclined" required style="transform: scale(1.5);" />
+                                    <label class="form-check-label ms-2" for="statusDeclined" style="cursor: pointer;">
+                                        <strong>❌ Non, je ne pourrai pas être présent(e)</strong>
+                                    </label>
+                                </div>
+                            </div>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+
+                        <div id="confirmationDetails" style="display: none;">
+                            <div class="mb-3">
+                                <label asp-for="NumberOfPeople" class="form-label">
+                                    Nombre de personnes
+                                </label>
+                                <input asp-for="NumberOfPeople" type="number" min="1" max="20"
+                                       class="form-control form-control-lg" />
+                                <span asp-validation-for="NumberOfPeople" class="text-danger"></span>
+                                <small class="text-muted">Incluant vous-même</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="DietaryRestrictions" class="form-label">
+                                    Contraintes alimentaires ou allergies
+                                </label>
+                                <textarea asp-for="DietaryRestrictions" class="form-control" rows="3"
+                                          placeholder="Ex: Végétarien, allergie aux fruits de mer, sans gluten..."></textarea>
+                                <span asp-validation-for="DietaryRestrictions" class="text-danger"></span>
+                                <small class="text-muted">Optionnel - Cela nous aidera à prévoir les repas</small>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                📨 Envoyer ma réponse
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <small class="text-muted">
+                            🔒 Ce lien est personnel et sécurisé
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Afficher/masquer les détails selon le choix
+        document.querySelectorAll('input[name="Status"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const details = document.getElementById('confirmationDetails');
+                if (this.value === '1') { // Confirmé
+                    details.style.display = 'block';
+                } else {
+                    details.style.display = 'none';
+                }
+            });
+        });
+
+        // Animation des cartes de choix
+        document.querySelectorAll('.form-check').forEach(card => {
+            card.addEventListener('click', function () {
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+            });
+        });
+    </script>
+}

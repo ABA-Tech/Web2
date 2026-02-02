@@ -1,0 +1,113 @@
+﻿@model Web.Models.ViewModels.GuestFormViewModel
+@{
+    ViewData["Title"] = "Ajouter un invité";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">➕ Ajouter un invité</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label"></label>
+                                <input asp-for="FirstName" class="form-control" placeholder="Prénom" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label"></label>
+                                <input asp-for="LastName" class="form-control" placeholder="Nom" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="email@example.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="GroupFamily" class="form-label"></label>
+                                <input asp-for="GroupFamily" class="form-control" placeholder="Ex: Famille Martin" />
+                                <span asp-validation-for="GroupFamily" class="text-danger"></span>
+                                <small class="text-muted">Optionnel - Pour regrouper les invités</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NumberOfPeople" class="form-label"></label>
+                                <input asp-for="NumberOfPeople" type="number" min="1" max="20" class="form-control" />
+                                <span asp-validation-for="NumberOfPeople" class="text-danger"></span>
+                                <small class="text-muted">Nombre de personnes dans ce groupe</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Status" class="form-label"></label>
+                                <select asp-for="Status" class="form-select">
+                                    <option value="0">En attente</option>
+                                    <option value="1">Confirmé</option>
+                                    <option value="2">Refusé</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="TableId" class="form-label"></label>
+                                <select asp-for="TableId" asp-items="ViewBag.Tables" class="form-select">
+                                    <option value="">Aucune table assignée</option>
+                                </select>
+                                <span asp-validation-for="TableId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DietaryRestrictions" class="form-label"></label>
+                            <textarea asp-for="DietaryRestrictions" class="form-control" rows="3"
+                                      placeholder="Ex: Végétarien, allergie aux noix..."></textarea>
+                            <span asp-validation-for="DietaryRestrictions" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="SendInvitation" type="checkbox" class="form-check-input" checked />
+                                <label asp-for="SendInvitation" class="form-check-label">
+                                    Envoyer l'invitation par email automatiquement
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                Un email avec un lien unique sera envoyé à l'invité pour qu'il puisse confirmer sa présence
+                            </small>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                ← Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                ✅ Créer l'invité
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

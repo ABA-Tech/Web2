@@ -1,0 +1,202 @@
+﻿@model Web.Models.Table
+@{
+    ViewData["Title"] = "Détails de la table";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header @(Model.IsOverCapacity ? "bg-danger" : "bg-primary") text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">🪑 @Model.Name</h3>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-light btn-sm">
+                                ✏️ Modifier
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Informations de la table -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2">Informations</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Nom</dt>
+                                <dd class="col-sm-8"><strong>@Model.Name</strong></dd>
+
+                                <dt class="col-sm-4">Capacité</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-secondary">@Model.Capacity places</span>
+                                </dd>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                                {
+                                    <dt class="col-sm-4">Description</dt>
+                                    <dd class="col-sm-8">@Model.Description</dd>
+                                }
+                            </dl>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="border-bottom pb-2">Occupation</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Places occupées</dt>
+                                <dd class="col-sm-8">
+                                    <strong>@Model.CurrentOccupancy</strong> / @Model.Capacity
+                                </dd>
+
+                                <dt class="col-sm-4">Places restantes</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.AvailableSeats > 0)
+                                    {
+                                        <span class="badge bg-success">@Model.AvailableSeats places</span>
+                                    }
+                                    else if (Model.AvailableSeats == 0)
+                                    {
+                                        <span class="badge bg-warning">Complet</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Sur-capacité : @Math.Abs(Model.AvailableSeats)</span>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-4">Taux de remplissage</dt>
+                                <dd class="col-sm-8">
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar @(Model.IsOverCapacity ? "bg-danger" : "")"
+                                             role="progressbar"
+                                             style="width: @(Model.OccupancyPercentage > 100 ? 100 : Model.OccupancyPercentage)%">
+                                            @Model.OccupancyPercentage.ToString("F1")%
+                                        </div>
+                                    </div>
+                                </dd>
+
+                                <dt class="col-sm-4">Nombre d'invités</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-info">@Model.GuestCount</span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    @if (Model.IsOverCapacity)
+                    {
+                        <div class="alert alert-danger">
+                            <h6 class="alert-heading">⚠️ Alerte de capacité</h6>
+                            <p class="mb-0">
+                                Cette table dépasse sa capacité de <strong>@Math.Abs(Model.AvailableSeats) place(s)</strong>.
+                                Veuillez augmenter la capacité ou réassigner certains invités.
+                            </p>
+                        </div>
+                    }
+
+                    <!-- Liste des invités -->
+                    <h5 class="border-bottom pb-2 mt-4">
+                        👥 Invités assignés (@Model.GuestCount)
+                    </h5>
+
+                    @if (Model.Guests != null && Model.Guests.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nom complet</th>
+                                        <th>Email</th>
+                                        <th>Groupe</th>
+                                        <th class="text-center">Personnes</th>
+                                        <th>Statut</th>
+                                        <th>Contraintes</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var guest in Model.Guests.OrderBy(g => g.LastName).ThenBy(g => g.FirstName))
+                                    {
+                                        <tr>
+                                            <td><strong>@guest.FullName</strong></td>
+                                            <td><small class="text-muted">@guest.Email</small></td>
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(guest.GroupFamily))
+                                                {
+                                                    <span class="badge bg-info">@guest.GroupFamily</span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-secondary">@guest.NumberOfPeople</span>
+                                            </td>
+                                            <td>
+                                                @if (guest.Status == Web.Models.RsvpStatus.Confirmed)
+                                                {
+                                                    <span class="badge bg-success">✅ Confirmé</span>
+                                                }
+                                                else if (guest.Status == Web.Models.RsvpStatus.Declined)
+                                                {
+                                                    <span class="badge bg-danger">❌ Refusé</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">⏳ En attente</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(guest.DietaryRestrictions))
+                                                {
+                                                    <span title="@guest.DietaryRestrictions">🍽️</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <a asp-controller="Guests" asp-action="Details"
+                                                   asp-route-id="@guest.Id"
+                                                   class="btn btn-sm btn-outline-info">
+                                                    👁️
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-secondary">
+                                        <td colspan="3"><strong>Total</strong></td>
+                                        <td class="text-center">
+                                            <strong>@Model.CurrentOccupancy</strong>
+                                        </td>
+                                        <td colspan="3"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <p class="mb-0">Aucun invité n'est encore assigné à cette table.</p>
+                        </div>
+                    }
+
+                    <!-- Actions -->
+                    <hr class="my-4" />
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            ← Retour au plan de table
+                        </a>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                ✏️ Modifier
+                            </a>
+                            <button type="button" class="btn btn-danger"
+                                    onclick="if(confirm('Supprimer cette table ? Les invités seront désassignés.')) {
+                                        window.location.href='@Url.Action("Delete", new { id = Model.Id })'
+                                    }">
+                                🗑️ Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

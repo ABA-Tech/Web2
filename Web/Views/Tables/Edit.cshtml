@@ -1,0 +1,113 @@
+﻿@model Web.Models.Table
+@{
+    ViewData["Title"] = "Modifier une table";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">✏️ Modifier la table</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Name" class="form-label"></label>
+                                <input asp-for="Name" class="form-control" placeholder="Ex: Table 1, Table d'honneur..." />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Capacity" class="form-label"></label>
+                                <input asp-for="Capacity" type="number" min="1" max="50" class="form-control" />
+                                <span asp-validation-for="Capacity" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3"
+                                      placeholder="Ex: Près de la piste de danse, Côté jardin..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Info sur l'occupation actuelle -->
+                        @if (Model.Guests != null && Model.Guests.Any())
+                        {
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">📊 Occupation actuelle</h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@Model.CurrentOccupancy personnes</strong> sur @Model.Capacity places
+                                        (@Model.GuestCount invité(s))
+                                    </div>
+                                    <div class="progress" style="width: 200px; height: 25px;">
+                                        <div class="progress-bar @(Model.IsOverCapacity ? "bg-danger" : "")"
+                                             role="progressbar"
+                                             style="width: @Model.OccupancyPercentage%">
+                                            @Model.OccupancyPercentage.ToString("F0")%
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (Model.IsOverCapacity)
+                                {
+                                    <hr />
+                                    <p class="mb-0 text-danger">
+                                        ⚠️ Attention : La capacité actuelle est dépassée.
+                                        Augmentez la capacité ou réassignez certains invités.
+                                    </p>
+                                }
+                            </div>
+
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Invités assignés à cette table</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-group">
+                                        @foreach (var guest in Model.Guests.OrderBy(g => g.LastName))
+                                        {
+                                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>@guest.FullName</strong>
+                                                    <br />
+                                                    <small class="text-muted">@guest.NumberOfPeople personne(s)</small>
+                                                </div>
+                                                @if (guest.Status == Web.Models.RsvpStatus.Confirmed)
+                                                {
+                                                    <span class="badge bg-success">Confirmé</span>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                ← Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                ✅ Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

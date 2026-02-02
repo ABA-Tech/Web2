@@ -1,0 +1,71 @@
+﻿@model Web.Models.Table
+@{
+    ViewData["Title"] = "Créer une table";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">➕ Créer une nouvelle table</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" placeholder="Ex: Table 1, Table d'honneur..." />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                            <small class="text-muted">Nom unique pour identifier la table</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Capacity" class="form-label"></label>
+                            <input asp-for="Capacity" type="number" min="1" max="50" class="form-control" value="8" />
+                            <span asp-validation-for="Capacity" class="text-danger"></span>
+                            <small class="text-muted">Nombre maximum de personnes pouvant s'asseoir à cette table</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3"
+                                      placeholder="Ex: Près de la piste de danse, Côté jardin..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                            <small class="text-muted">Description optionnelle (emplacement, notes...)</small>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                ← Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                ✅ Créer la table
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Aperçu visuel -->
+            <div class="card mt-3 bg-light">
+                <div class="card-body text-center">
+                    <small class="text-muted">💡 Astuce</small>
+                    <p class="mb-0 small">
+                        Les tables standard peuvent accueillir 6-10 personnes.
+                        Prévoyez des tables plus grandes pour les familles nombreuses.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

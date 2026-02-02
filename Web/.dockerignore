@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+**/bin/
+**/obj/
+*.log
+*.user
+*.suo
+.idea/
+node_modules/
+dist/
+*.vsconfig
+launchSettings.json
+*/.venv
+*.DS_Store

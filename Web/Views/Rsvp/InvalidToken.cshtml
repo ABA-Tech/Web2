@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Lien invalide";
+    Layout = "_LayoutPublic";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-danger text-white text-center py-4">
+                    <h2 class="mb-0">❌ Lien invalide</h2>
+                </div>
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <div style="font-size: 5rem;">🔒</div>
+                    </div>
+
+                    <h4>Ce lien n'est pas valide</h4>
+                    <p class="lead">Le lien d'invitation que vous avez utilisé n'est pas reconnu.</p>
+
+                    <hr class="my-4" />
+
+                    <div class="text-start">
+                        <h6>Causes possibles :</h6>
+                        <ul>
+                            <li>Le lien est incomplet ou a été modifié</li>
+                            <li>Le lien a déjà été utilisé pour répondre</li>
+                            <li>Le lien a expiré</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <strong>💡 Que faire ?</strong>
+                        <p class="mb-0">
+                            Veuillez vérifier que vous avez copié le lien complet depuis votre email
+                            ou contactez les organisateurs pour recevoir une nouvelle invitation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

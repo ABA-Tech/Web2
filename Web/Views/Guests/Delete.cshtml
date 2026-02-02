@@ -1,0 +1,96 @@
+﻿@model Web.Models.Guest
+@{
+    ViewData["Title"] = "Supprimer un invité";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">🗑️ Supprimer l'invité</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Attention !</strong> Cette action est irréversible.
+                    </div>
+
+                    <h5>Êtes-vous sûr de vouloir supprimer cet invité ?</h5>
+
+                    <div class="card bg-light mt-4">
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Nom complet</dt>
+                                <dd class="col-sm-8">@Model.FullName</dd>
+
+                                <dt class="col-sm-4">Email</dt>
+                                <dd class="col-sm-8">@Model.Email</dd>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.GroupFamily))
+                                {
+                                    <dt class="col-sm-4">Groupe/Famille</dt>
+                                    <dd class="col-sm-8">@Model.GroupFamily</dd>
+                                }
+
+                                <dt class="col-sm-4">Nombre de personnes</dt>
+                                <dd class="col-sm-8">@Model.NumberOfPeople</dd>
+
+                                <dt class="col-sm-4">Statut</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.Status == Web.Models.RsvpStatus.Confirmed)
+                                    {
+                                        <span class="badge bg-success">✅ Confirmé</span>
+                                    }
+                                    else if (Model.Status == Web.Models.RsvpStatus.Declined)
+                                    {
+                                        <span class="badge bg-danger">❌ Refusé</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">⏳ En attente</span>
+                                    }
+                                </dd>
+
+                                @if (Model.Table != null)
+                                {
+                                    <dt class="col-sm-4">Table assignée</dt>
+                                    <dd class="col-sm-8">
+                                        <span class="badge bg-primary">@Model.Table.Name</span>
+                                    </dd>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(Model.DietaryRestrictions))
+                                {
+                                    <dt class="col-sm-4">Contraintes alimentaires</dt>
+                                    <dd class="col-sm-8">@Model.DietaryRestrictions</dd>
+                                }
+
+                                <dt class="col-sm-4">Créé le</dt>
+                                <dd class="col-sm-8">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                                @if (Model.RespondedAt.HasValue)
+                                {
+                                    <dt class="col-sm-4">Répondu le</dt>
+                                    <dd class="col-sm-8">@Model.RespondedAt.Value.ToString("dd/MM/yyyy HH:mm")</dd>
+                                }
+                            </dl>
+                        </div>
+                    </div>
+
+                    <form asp-action="Delete" method="post" class="mt-4">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                ← Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                🗑️ Confirmer la suppression
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

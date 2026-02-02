@@ -1,0 +1,225 @@
+﻿@model Web.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Tableau de bord";
+}
+
+<div class="container-fluid py-4">
+    <h1 class="mb-4">📊 Tableau de bord</h1>
+
+    <!-- Statistiques principales -->
+    <div class="row mb-4">
+        <!-- Total Invités -->
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Invités</h6>
+                    <h2 class="mb-0">@Model.TotalGuests</h2>
+                    <small class="text-muted">@Model.TotalPeople personnes</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmés -->
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body">
+                    <h6 class="text-muted">✅ Confirmés</h6>
+                    <h2 class="mb-0 text-success">@Model.ConfirmedGuests</h2>
+                    <small class="text-muted">@Model.ConfirmedPeople personnes</small>
+                    <div class="mt-2">
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: @Model.ConfirmationRate%"></div>
+                        </div>
+                        <small>@Model.ConfirmationRate.ToString("F1")% de confirmation</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- En attente -->
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <h6 class="text-muted">⏳ En attente</h6>
+                    <h2 class="mb-0 text-warning">@Model.PendingGuests</h2>
+                    <small class="text-muted">@Model.PendingPeople personnes</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Refusés -->
+        <div class="col-md-3">
+            <div class="card border-danger">
+                <div class="card-body">
+                    <h6 class="text-muted">❌ Refusés</h6>
+                    <h2 class="mb-0 text-danger">@Model.DeclinedGuests</h2>
+                    <small class="text-muted">@Model.DeclinedPeople personnes</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques des tables -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">🪑 Capacité totale</h6>
+                    <h2 class="mb-0">@Model.TotalSeats</h2>
+                    <small class="text-muted">sur @Model.TotalTables tables</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">Places occupées</h6>
+                    <h2 class="mb-0">@Model.OccupiedSeats</h2>
+                    <div class="progress mt-2" style="height: 20px;">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: @((Model.TotalSeats > 0 ? (Model.OccupiedSeats * 100.0 / Model.TotalSeats) : 0))%">
+                            @((Model.TotalSeats > 0 ? (Model.OccupiedSeats * 100.0 / Model.TotalSeats).ToString("F1") : "0"))%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-muted">Places disponibles</h6>
+                    <h2 class="mb-0 text-info">@Model.AvailableSeats</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertes -->
+    @if (Model.OverCapacityTables.Any())
+    {
+        <div class="alert alert-danger">
+            <h5>⚠️ Attention : Tables dépassant la capacité</h5>
+            <ul class="mb-0">
+                @foreach (var table in Model.OverCapacityTables)
+                {
+                    <li>
+                        <strong>@table.Name</strong> : @table.CurrentOccupancy/@table.Capacity places 
+                        (+@(table.CurrentOccupancy - table.Capacity) en trop)
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- Deux colonnes : Réponses récentes et Invités en attente -->
+    <div class="row">
+        <!-- Réponses récentes -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🔔 Réponses récentes</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentResponses.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var guest in Model.RecentResponses)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@guest.FullName</h6>
+                                        <small>@guest.RespondedAt?.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                    <p class="mb-1">
+                                        @if (guest.Status == Web.Models.RsvpStatus.Confirmed)
+                                        {
+                                            <span class="badge bg-success">✅ Confirmé</span>
+                                            <span class="text-muted">(@guest.NumberOfPeople personne(s))</span>
+                                        }
+                                        else if (guest.Status == Web.Models.RsvpStatus.Declined)
+                                        {
+                                            <span class="badge bg-danger">❌ Refusé</span>
+                                        }
+                                    </p>
+                                    @if (!string.IsNullOrWhiteSpace(guest.DietaryRestrictions))
+                                    {
+                                        <small class="text-muted">🍽️ @guest.DietaryRestrictions</small>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Aucune réponse pour le moment</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Invités en attente -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">⏳ Invités en attente de réponse</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.PendingGuestsList.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var guest in Model.PendingGuestsList)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">@guest.FullName</h6>
+                                        <small class="text-muted">@guest.Email</small>
+                                        @if (!string.IsNullOrWhiteSpace(guest.GroupFamily))
+                                        {
+                                            <br/><small class="text-muted">👨‍👩‍👧‍👦 @guest.GroupFamily</small>
+                                        }
+                                    </div>
+                                    <span class="badge bg-warning">En attente</span>
+                                </div>
+                            }
+                        </div>
+                        @if (Model.PendingGuests > Model.PendingGuestsList.Count)
+                        {
+                            <div class="text-center mt-3">
+                                <a asp-controller="Guests" asp-action="Index" asp-route-statusFilter="0" class="btn btn-sm btn-outline-primary">
+                                    Voir tous les @Model.PendingGuests invités en attente
+                                </a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Tous les invités ont répondu ! 🎉</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Boutons d'action rapide -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <h5>Actions rapides</h5>
+                    <a asp-controller="Guests" asp-action="Create" class="btn btn-primary me-2">
+                        ➕ Ajouter un invité
+                    </a>
+                    <a asp-controller="Guests" asp-action="Index" class="btn btn-outline-primary me-2">
+                        📋 Voir tous les invités
+                    </a>
+                    <a asp-controller="Tables" asp-action="Index" class="btn btn-outline-secondary">
+                        🪑 Gérer le plan de table
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

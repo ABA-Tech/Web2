@@ -1,0 +1,277 @@
+﻿@model Web.Models.ViewModels.SeatingPlanViewModel
+@{
+    ViewData["Title"] = "Plan de table";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="page-title mb-1">
+                <i class="fas fa-chair"></i> Plan de table
+            </h1>
+            <p class="text-muted mb-0">Organisez vos invités par table</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary btn-create">
+            <i class="fas fa-plus"></i> Créer une table
+        </a>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);">
+                    <i class="fas fa-chair"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">@Model.Tables.Count</div>
+                    <div class="stat-label">Tables</div>
+                    <div class="stat-detail">@Model.TotalSeats places totales</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">@Model.OccupiedSeats</div>
+                    <div class="stat-label">Places occupées</div>
+                    <div class="stat-detail">@((Model.TotalSeats > 0 ? (Model.OccupiedSeats * 100.0 / Model.TotalSeats).ToString("F1") : "0"))%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">@Model.AvailableSeats</div>
+                    <div class="stat-label">Places disponibles</div>
+                    <div class="stat-detail">Sièges libres</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">@Model.UnassignedPeople</div>
+                    <div class="stat-label">Personnes</div>
+                    <div class="stat-detail">Sans table assignée</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invités non assignés -->
+    @if (Model.UnassignedGuests.Any())
+    {
+        <div class="alert-card warning mb-4">
+            <div class="alert-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h5>Invités confirmés sans table (@Model.UnassignedGuests.Count)</h5>
+            </div>
+            <div class="alert-body">
+                <div class="row g-3">
+                    @foreach (var guest in Model.UnassignedGuests)
+                    {
+                        <div class="col-md-6 col-lg-4 col-xl-3">
+                            <div class="guest-card unassigned">
+                                <div class="guest-name">
+                                    <i class="fas fa-user-circle"></i>
+                                    @guest.FullName
+                                </div>
+                                <div class="guest-info">
+                                    <span class="badge-people">
+                                        <i class="fas fa-users"></i> @guest.NumberOfPeople personne(s)
+                                    </span>
+                                    @if (!string.IsNullOrWhiteSpace(guest.GroupFamily))
+                                    {
+                                        <span class="badge-family">
+                                            <i class="fas fa-heart"></i> @guest.GroupFamily
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Tables -->
+    <div class="row g-4">
+        @foreach (var table in Model.Tables)
+        {
+            <div class="col-md-6 col-xl-4">
+                <div class="table-card @(table.IsOverCapacity ? "over-capacity" : "")">
+                    <div class="table-card-header">
+                        <div class="table-title">
+                            <i class="fas fa-table"></i>
+                            <h5>@table.Name</h5>
+                        </div>
+                        <span class="capacity-badge">
+                            <i class="fas fa-chair"></i> @table.CurrentOccupancy/@table.Capacity
+                        </span>
+                    </div>
+
+                    <div class="table-card-body">
+                        @if (!string.IsNullOrWhiteSpace(table.Description))
+                        {
+                            <p class="table-description">
+                                <i class="fas fa-info-circle"></i>
+                                @table.Description
+                            </p>
+                        }
+
+                        <!-- Barre de progression -->
+                        <div class="progress-section">
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill @(table.IsOverCapacity ? "over" : "")"
+                                     style="width: @(table.IsOverCapacity ? 100 : table.OccupancyPercentage)%">
+                                </div>
+                            </div>
+                            <div class="progress-info">
+                                <span class="progress-percent">@table.OccupancyPercentage.ToString("F0")%</span>
+                                @if (table.IsOverCapacity)
+                                {
+                                    <span class="over-capacity-label">
+                                        <i class="fas fa-exclamation-circle"></i> Capacité dépassée
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Liste des invités -->
+                        <div class="guests-list">
+                            @if (table.Guests.Any())
+                            {
+                                @foreach (var guest in table.Guests.OrderBy(g => g.LastName))
+                                {
+                                    <div class="guest-item">
+                                        <div class="guest-item-info">
+                                            <div class="guest-item-name">
+                                                <i class="fas fa-user"></i>
+                                                @guest.FullName
+                                            </div>
+                                            <div class="guest-item-details">
+                                                <span class="people-count">
+                                                    <i class="fas fa-users"></i> @guest.NumberOfPeople
+                                                </span>
+                                                @if (!string.IsNullOrWhiteSpace(guest.GroupFamily))
+                                                {
+                                                    <span class="family-badge">@guest.GroupFamily</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <form method="post" asp-action="UnassignGuest"
+                                              asp-route-guestId="@guest.Id" class="unassign-form">
+                                            <button type="submit" class="btn-unassign" title="Retirer de cette table">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="empty-table">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>Table vide</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="table-card-footer">
+                        <a asp-action="Details" asp-route-id="@table.Id" class="btn-action details">
+                            <i class="fas fa-eye"></i> Détails
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@table.Id" class="btn-action edit">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                        <button type="button" class="btn-action delete"
+                                onclick="deleteTable(@table.Id, '@table.Name')">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Tables.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-chair"></i>
+            </div>
+            <h3>Aucune table créée</h3>
+            <p>Commencez par créer votre première table pour organiser vos invités</p>
+            <a asp-action="Create" class="btn btn-primary btn-create">
+                <i class="fas fa-plus"></i> Créer la première table
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Suppression d'une table avec confirmation stylée
+        function deleteTable(tableId, tableName) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer la table "${tableName}" ?\n\nLes invités assignés à cette table seront désassignés.`)) {
+                fetch(`/Tables/Delete/${tableId}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Erreur lors de la suppression de la table.');
+                    }
+                }).catch(error => {
+                    alert('Erreur réseau lors de la suppression.');
+                });
+            }
+        }
+
+        // Désassignation d'un invité avec AJAX
+        document.querySelectorAll('.unassign-form').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                if (confirm('Retirer cet invité de cette table ?')) {
+                    const formData = new FormData(this);
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert(data.message || 'Erreur lors de la désassignation.');
+                            }
+                        })
+                        .catch(error => {
+                            alert('Erreur réseau lors de la désassignation.');
+                        });
+                }
+            });
+        });
+    </script>
+}

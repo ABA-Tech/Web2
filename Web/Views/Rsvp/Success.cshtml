@@ -1,0 +1,82 @@
+﻿@model Web.Models.ViewModels.RsvpViewModel
+@{
+    ViewData["Title"] = "Confirmation enregistrée";
+    Layout = "_LayoutPublic";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                @if (Model.Status == Web.Models.RsvpStatus.Confirmed)
+                {
+                    <div class="card-header bg-success text-white text-center py-4">
+                        <h2 class="mb-0">✅ Merci pour votre confirmation !</h2>
+                    </div>
+                    <div class="card-body p-5 text-center">
+                        <div class="mb-4">
+                            <div style="font-size: 5rem;">🎊</div>
+                        </div>
+
+                        <h4>Nous sommes ravis de vous compter parmi nous !</h4>
+                        <p class="lead">Votre réponse a bien été enregistrée.</p>
+
+                        <hr class="my-4" />
+
+                        <div class="bg-light p-4 rounded">
+                            <h5>Récapitulatif de votre réponse :</h5>
+                            <div class="text-start mt-3">
+                                <p><strong>Nom :</strong> @Model.Guest.FullName</p>
+                                <p><strong>Nombre de personnes :</strong> @Model.NumberOfPeople</p>
+                                @if (!string.IsNullOrWhiteSpace(Model.DietaryRestrictions))
+                                {
+                                    <p><strong>Contraintes alimentaires :</strong> @Model.DietaryRestrictions</p>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-4">
+                            <p class="mb-0">
+                                📧 Un email de confirmation vous a été envoyé à <strong>@Model.Guest.Email</strong>
+                            </p>
+                        </div>
+
+                        <p class="mt-4 text-muted">
+                            D'autres informations pratiques (lieu, horaires, hébergement)
+                            vous seront communiquées prochainement.
+                        </p>
+
+                        <div class="mt-5">
+                            <p class="h5">À très bientôt ! 💑</p>
+                        </div>
+                    </div>
+                }
+                else if (Model.Status == Web.Models.RsvpStatus.Declined)
+                {
+                    <div class="card-header bg-secondary text-white text-center py-4">
+                        <h2 class="mb-0">Réponse enregistrée</h2>
+                    </div>
+                    <div class="card-body p-5 text-center">
+                        <h4>Merci d'avoir pris le temps de répondre</h4>
+                        <p class="lead">Votre réponse a bien été enregistrée.</p>
+
+                        <hr class="my-4" />
+
+                        <p>Nous sommes désolés que vous ne puissiez pas être présent(e) à notre mariage.</p>
+                        <p>Nous pensons à vous et espérons pouvoir célébrer avec vous une prochaine fois.</p>
+
+                        <div class="alert alert-info mt-4">
+                            <p class="mb-0">
+                                📧 Un email de confirmation vous a été envoyé à <strong>@Model.Guest.Email</strong>
+                            </p>
+                        </div>
+
+                        <div class="mt-5">
+                            <p>Bien à vous 💐</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
