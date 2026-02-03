@@ -57,7 +57,7 @@ namespace Web.Controllers
             }
 
             // Afficher le formulaire RSVP
-            return View(viewModel);
+            return View("test",viewModel.Guest);
         }
 
         /// <summary>
@@ -120,6 +120,58 @@ namespace Web.Controllers
             return View("Index", viewModel);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Submit2([FromBody] RsvpViewModel viewModel)
+        {
+            // Valider le token
+            if (!await _rsvpService.ValidateTokenAsync(viewModel.Token))
+            {
+                return Json(new { success = false, message = "Token invalide" });
+            }
+
+            // Si l'invité refuse, on met NumberOfPeople à 0
+            if (viewModel.Status == RsvpStatus.Declined)
+            {
+                viewModel.NumberOfPeople = 0;
+                viewModel.DietaryRestrictions = null;
+            }
+
+            // Validation manuelle
+            if (viewModel.Status == RsvpStatus.Confirmed)
+            {
+                if (viewModel.NumberOfPeople < 1 || viewModel.NumberOfPeople > 20)
+                {
+                    return Json(new { success = false, message = "Le nombre de personnes doit être entre 1 et 20" });
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+                var success = await _rsvpService.SubmitRsvpAsync(
+                    viewModel.Token,
+                    viewModel.Status,
+                    viewModel.NumberOfPeople,
+                    viewModel.DietaryRestrictions
+                );
+
+                if (success)
+                {
+                    // Récupérer les données mises à jour pour la page de confirmation
+                    var rsvpToken = await _rsvpService.GetTokenAsync(viewModel.Token);
+                    viewModel.Guest = rsvpToken.Guest;
+
+                    return View("Success", viewModel);
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Une erreur est survenue lors de l'enregistrement" });
+                }
+            }
+
+            return Json(new { success = false, message = "Données invalides" });
+        }
+
         /// <summary>
         /// Page d'erreur pour token invalide
         /// </summary>
@@ -134,6 +186,25 @@ namespace Web.Controllers
         public IActionResult Expired()
         {
             return View();
+        }
+
+
+        // Route: /Invitation/{id}
+        [HttpGet("Invitation/{id}")]
+        public async Task<IActionResult> Invitation(string id)
+        {
+            // Vérifier si l'ID existe et est valide
+            var rsvpToken = await _rsvpService.GetTokenAsync(id);
+
+
+            if (rsvpToken == null)
+            {
+                // Token invalide
+                return View("InvalidToken");
+            }
+
+            // Afficher le formulaire RSVP
+            return View("test", rsvpToken.Guest);
         }
     }
 }

@@ -30,7 +30,7 @@
 
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email" type="email" class="form-control" placeholder="email@example.com" />
+                            <input asp-for="Email" type="email" class="form-control" placeholder="email@example.com" required/>
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
@@ -63,7 +63,7 @@
 
                             <div class="col-md-6 mb-3">
                                 <label asp-for="TableId" class="form-label"></label>
-                                <select asp-for="TableId" asp-items="ViewBag.Tables" class="form-select">
+                                <select asp-for="TableId" asp-items="ViewBag.Tables" class="form-select" required>
                                     <option value="">Aucune table assignée</option>
                                 </select>
                                 <span asp-validation-for="TableId" class="text-danger"></span>

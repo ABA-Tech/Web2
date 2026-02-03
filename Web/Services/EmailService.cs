@@ -35,7 +35,8 @@ namespace Web.Services
             try
             {
                 var subject = "🎉 Vous êtes invité(e) à notre mariage !";
-                var body = GenerateInvitationEmailBody(guest, rsvpUrl);
+                //var body = GenerateInvitationEmailBody(guest, rsvpUrl);
+                var body = SendInvitation(guest, rsvpUrl);
 
                // return await SendEmailAsync(guest.Email, subject, body);
                 return await SendEmailAsync(guest.Email, subject, body);
@@ -46,16 +47,31 @@ namespace Web.Services
                 return false;
             }
         }
+        public string SendInvitation(Guest guest, string baseUrl)
+        {
+            var invitationLink = baseUrl;
 
+            var emailBody = $@"
+                <h1>Vous êtes invité(e) au mariage de Sophie & Alexandre !</h1>
+                <p>Cher(e) {guest.FirstName} {guest.LastName},</p>
+                <p>Cliquez sur le lien ci-dessous pour consulter votre invitation :</p>
+                <a href='{invitationLink}' style='display: inline-block; padding: 15px 30px; background: #8bc34a; color: white; text-decoration: none; border-radius: 5px;'>
+                    Voir mon invitation
+                </a>
+            ";
+
+            return emailBody;
+        }
         /// <summary>
         /// Envoie l'email de confirmation de présence
         /// </summary>
-        public async Task<bool> SendConfirmationEmailAsync(Guest guest)
+        public async Task<bool> SendConfirmationEmailAsync(Guest guest, string invitationUrl)
         {
             try
             {
                 var subject = "✅ Confirmation de votre présence à notre mariage";
-                var body = GenerateConfirmationEmailBody(guest);
+
+                var body = GenerateConfirmationEmailBody(guest, invitationUrl);
 
                 return await SendEmailAsync(guest.Email, subject, body);
             }
@@ -178,7 +194,7 @@ namespace Web.Services
         /// <summary>
         /// Génère le corps HTML de l'email de confirmation
         /// </summary>
-        private string GenerateConfirmationEmailBody(Guest guest)
+        private string GenerateConfirmationEmailBody(Guest guest, string invitationUrl)
         {
             return $@"
 <!DOCTYPE html>
@@ -190,6 +206,8 @@ namespace Web.Services
         .header {{ background: #10b981; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
         .content {{ background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }}
         .info-box {{ background: white; padding: 15px; border-left: 4px solid #10b981; margin: 20px 0; }}
+        .button {{ display: inline-block; background: #10b981; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }}
+        .button:hover {{ background: #059669; }}
     </style>
 </head>
 <body>
@@ -209,6 +227,10 @@ namespace Web.Services
             </div>
             
             <p>Nous sommes ravis de pouvoir partager ce moment avec vous !</p>
+            
+            <p style='text-align: center;'>
+                <a href='{invitationUrl}' class='button'>📋 Voir mon invitation</a>
+            </p>
             
             <p>D'autres informations pratiques vous seront communiquées prochainement.</p>
             

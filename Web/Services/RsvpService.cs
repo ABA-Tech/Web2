@@ -159,7 +159,8 @@ namespace Web.Services
                 // Envoyer l'email de confirmation
                 if (status == RsvpStatus.Confirmed)
                 {
-                    await _emailService.SendConfirmationEmailAsync(guest);
+                    var url = await GetInvitationUrlAsync(token);
+                    await _emailService.SendConfirmationEmailAsync(guest, url);
                 }
                 else if (status == RsvpStatus.Declined)
                 {
@@ -183,6 +184,14 @@ namespace Web.Services
         {
             var baseUrl = _configuration["RsvpSettings:BaseUrl"];
             return $"{baseUrl}/Rsvp/{token}";
+        }
+        /// <summary>
+        /// Génère l'URL complète du RSVP
+        /// </summary>
+        public async Task<string> GetInvitationUrlAsync(string token)
+        {
+            var baseUrl = _configuration["RsvpSettings:BaseUrl"];
+            return $"{baseUrl}/Invitation/{token}";
         }
 
         /// <summary>

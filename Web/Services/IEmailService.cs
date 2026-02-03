@@ -8,7 +8,7 @@ namespace Web.Services
     public interface IEmailService
     {
         Task<bool> SendRsvpInvitationAsync(Guest guest, string rsvpUrl);
-        Task<bool> SendConfirmationEmailAsync(Guest guest);
+        Task<bool> SendConfirmationEmailAsync(Guest guest, string invitationUrl);
         Task<bool> SendDeclineConfirmationAsync(Guest guest);
     }
 }
