@@ -157,11 +157,11 @@ namespace Web.Controllers
 
                 if (success)
                 {
-                    // Récupérer les données mises à jour pour la page de confirmation
-                    var rsvpToken = await _rsvpService.GetTokenAsync(viewModel.Token);
-                    viewModel.Guest = rsvpToken.Guest;
-
-                    return View("Success", viewModel);
+                    return Json(new
+                    {
+                        success = true,
+                        redirectUrl = Url.Action("Index", new { token = viewModel.Token })
+                    });
                 }
                 else
                 {
