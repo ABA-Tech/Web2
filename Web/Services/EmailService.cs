@@ -154,7 +154,7 @@ namespace Web.Services
             try
             {
                 // Récupération de la clé depuis la variable d'environnement
-                var apiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY") ?? _brevoApiKey = configuration["Brevo:ApiKey"];
+                var apiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY");
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
                     Console.WriteLine("Error: BREVO_API_KEY is missing!");
