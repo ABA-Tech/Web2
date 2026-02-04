@@ -154,7 +154,7 @@ namespace Web.Services
         {
             try
             {
-                var apiKey = "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";
+                var apiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY");
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
                     return false;
