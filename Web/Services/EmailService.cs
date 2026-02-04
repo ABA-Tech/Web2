@@ -149,24 +149,30 @@ namespace Web.Services
                 throw;
             }
         }
-
         private async Task<bool> SendEmailAsyncWithBrevo(string toEmail, string subject, string body)
         {
             try
             {
+                // Récupération de la clé depuis la variable d'environnement
                 var apiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY");
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
+                    apiKey = "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";
+                    Console.WriteLine("Error: BREVO_API_KEY is missing!");
                     return false;
                 }
-
+        
                 using var httpClient = new HttpClient();
-
-                httpClient.DefaultRequestHeaders.Add("api-key", apiKey);
+        
+                // Authentification avec Bearer token
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+        
                 httpClient.DefaultRequestHeaders.Accept.Add(
-                    new MediaTypeWithQualityHeaderValue("application/json")
+                    new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json")
                 );
-
+        
+                // Création du payload JSON
                 var payload = new
                 {
                     sender = new
@@ -176,37 +182,37 @@ namespace Web.Services
                     },
                     to = new[]
                     {
-                new
-                {
-                    email = toEmail
-                }
-            },
+                        new { email = toEmail }
+                    },
                     subject = subject,
                     htmlContent = body
                 };
-
+        
                 var json = JsonSerializer.Serialize(payload);
                 using var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await httpClient.PostAsync(
-                    "https://api.brevo.com/v3/smtp/email",
-                    content
-                );
-
+        
+                // Envoi de la requête
+                var response = await httpClient.PostAsync("https://api.brevo.com/v3/smtp/email", content);
+        
+                // Log et vérification du statut HTTP
+                var responseBody = await response.Content.ReadAsStringAsync();
                 if (!response.IsSuccessStatusCode)
                 {
-                    var error = await response.Content.ReadAsStringAsync();
-
+                    Console.WriteLine($"Brevo API error: HTTP {response.StatusCode}");
+                    Console.WriteLine($"Response: {responseBody}");
                     return false;
                 }
-
+        
+                Console.WriteLine($"Email sent successfully to {toEmail}");
                 return true;
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Exception when sending email: {ex}");
                 return false;
             }
         }
+
         /// <summary>
         /// Génère le corps HTML de l'email d'invitation
         /// </summary>
