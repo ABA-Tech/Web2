@@ -225,7 +225,7 @@ namespace Web.Services
                 
                 var payload = new
                 {
-                    from = "onboarding@resend.dev", // Utilisez ce domaine pour tester
+                    from = "admin@blandine-mafeu.fr", // Utilisez ce domaine pour tester
                     to = new[] { toEmail },
                     subject = subject,
                     html = htmlBody
