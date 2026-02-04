@@ -157,7 +157,7 @@ namespace Web.Services
                 var apiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY");
                 if (string.IsNullOrWhiteSpace(apiKey))
                 {
-                    apiKey = "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";
+                    apiKey = "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";
                     Console.WriteLine("Error: BREVO_API_KEY is missing!");
                     return false;
                 }
