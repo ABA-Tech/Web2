@@ -105,7 +105,13 @@ namespace Web.Services
         /// Méthode générique d'envoi d'email
         /// </summary>
 
+        
         private async Task<bool> SendEmailAsync(string to, string subject, string htmlBody)
+        {
+            return await SendEmailAsyncWithBrevo(to, subject, htmlBody)
+        }
+        
+        private async Task<bool> SendEmailAsyncWithGmail(string to, string subject, string htmlBody)
         {
             try
             {
@@ -136,6 +142,63 @@ namespace Web.Services
             }
         }
 
+        private async Task<bool> SendEmailAsyncWithBrevo(string toEmail, string subject, string body)
+        {
+            try
+            {
+                var apiKey = "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";
+                if (string.IsNullOrWhiteSpace(apiKey))
+                {
+                    return false;
+                }
+
+                using var httpClient = new HttpClient();
+
+                httpClient.DefaultRequestHeaders.Add("api-key", apiKey);
+                httpClient.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json")
+                );
+
+                var payload = new
+                {
+                    sender = new
+                    {
+                        email = "magaliperlin237@gmail.com",
+                        name = "Laura"
+                    },
+                    to = new[]
+                    {
+                new
+                {
+                    email = toEmail
+                }
+            },
+                    subject = subject,
+                    htmlContent = body
+                };
+
+                var json = JsonSerializer.Serialize(payload);
+                using var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync(
+                    "https://api.brevo.com/v3/smtp/email",
+                    content
+                );
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
         /// <summary>
         /// Génère le corps HTML de l'email d'invitation
         /// </summary>
