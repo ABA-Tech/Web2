@@ -160,7 +160,9 @@ namespace Web.Services
                     Console.WriteLine("Error: BREVO_API_KEY is missing!");
                     return false;
                 }
-        
+                Console.WriteLine($"BREVO_API_KEY présente : {apiKey}");
+                Console.WriteLine($"BREVO_API_KEY présente : {!string.IsNullOrEmpty(apiKey)}");
+                Console.WriteLine($"Longueur de la clé : {apiKey?.Length ?? 0}");
                 using var httpClient = new HttpClient();
         
                 // Authentification avec Bearer token
