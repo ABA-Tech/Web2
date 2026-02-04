@@ -108,7 +108,7 @@ namespace Web.Services
         
         private async Task<bool> SendEmailAsync(string to, string subject, string htmlBody)
         {
-            return await SendEmailAsyncWithBrevo(to, subject, htmlBody)
+            return await SendEmailAsyncWithBrevo(to, subject, htmlBody);
         }
         
         private async Task<bool> SendEmailAsyncWithGmail(string to, string subject, string htmlBody)
