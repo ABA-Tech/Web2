@@ -116,7 +116,7 @@ namespace Web.Services
         
         private async Task<bool> SendEmailAsync(string to, string subject, string htmlBody)
         {
-            return await SendEmailAsyncWithBrevo(to, subject, htmlBody);
+            return await SendEmailWithResend(to, subject, htmlBody);
         }
         
         private async Task<bool> SendEmailAsyncWithGmail(string to, string subject, string htmlBody)
@@ -210,6 +210,46 @@ namespace Web.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception when sending email: {ex}");
+                return false;
+            }
+        }
+
+        private async Task<bool> SendEmailWithResend(string toEmail, string subject, string htmlBody)
+        {
+            try
+            {
+                var apiKey = Environment.GetEnvironmentVariable("RESEND_API_KEY");
+                
+                using var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                
+                var payload = new
+                {
+                    from = "onboarding@resend.dev", // Utilisez ce domaine pour tester
+                    to = new[] { toEmail },
+                    subject = subject,
+                    html = htmlBody
+                };
+                Console.WriteLine(apiKey);
+                var json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                var response = await httpClient.PostAsync("https://api.resend.com/emails", content);
+                var responseBody = await response.Content.ReadAsStringAsync();
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError($"Resend error: {responseBody}");
+                    return false;
+                }
+                
+                _logger.LogInformation($"Email envoyé via Resend à {toEmail}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                _logger.LogError(ex, "Erreur Resend");
                 return false;
             }
         }
